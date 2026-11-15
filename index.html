@@ -305,4 +305,98 @@ summary{cursor:pointer;font-weight:700;color:var(--g800)}
   }
   var wk=["W1","W2","W3","W4","W5","W6","W7","W8"];
   barChart($("#chartDash"),[2,3,2,3,3,4,3,3],wk,5);
-  barChart($("#chartPo
+  barChart($("#chartPosts"),[2,3,2,3,3,4,3,3],wk,5);
+lineChart($("#chartScore"),[66,68,70,69,72,73,74,74],wk,50,100);
+
+/* Coach */
+var tips=[
+ {t:"Stay consistent",kw:["consisten","habit","time"],a:"Pick a rhythm you can keep, such as three posts a week. Block one 30-minute slot to write and one to review. A modest plan you finish beats a big plan you drop."},
+ {t:"Choose topics",kw:["topic","write about","idea"],a:"List the last five questions your audience asked. Turn each into one post that answers it clearly. Repeat the questions that get the most replies."},
+ {t:"Write better hooks",kw:["hook","opening","start"],a:"Open with your reader's problem in one short line, then promise one useful thing. Avoid hype you cannot back up."},
+ {t:"Review what worked",kw:["work","review","measure","result"],a:"Each Sunday, compare planned vs published and note one lesson. Look for patterns across several weeks, not single spikes."}
+];
+function say(cls,t){var d=document.createElement("div");d.className="msg "+cls;d.textContent=t;$("#chat").appendChild(d);$("#chat").scrollTop=1e6}
+function ask(q){
+  say("me",q);var l=q.toLowerCase(),hit=null;
+  tips.forEach(function(x){if(!hit&&(x.t.toLowerCase()===l||x.kw.some(function(k){return l.indexOf(k)>-1})))hit=x});
+  say("ai",hit?hit.a:"Good question. In this demo I only have sample guidance on consistency, topics, hooks and reviews. Try one of those.");
+}
+tips.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="chip";b.textContent=x.t;b.onclick=function(){ask(x.t)};$("#coachChips").appendChild(b)});
+say("ai","Hi! I'm the sample Growth Coach. Pick a topic above or type a question.");
+$("#coachForm").addEventListener("submit",function(e){e.preventDefault();var v=$("#coachIn").value.trim();if(v){ask(v);$("#coachIn").value=""}});
+
+/* Analyzer */
+function analyze(){
+  var t=$("#draft").value.trim();
+  if(!t){$("#result").innerHTML="<p>Paste a draft first.</p>";return}
+  var words=t.split(/\s+/).length,first=t.split(/[.?!]/)[0].split(/\s+/).length;
+  var checks=[
+    ["Opens with a short first sentence",first<=14],
+    ["Asks the reader a question",t.indexOf("?")>-1],
+    ["Has a clear structure (steps or list)",/first|second|third|1\.|step/i.test(t)],
+    ["Reasonable length (25 to 220 words)",words>=25&&words<=220],
+    ["Avoids hype words",!/guaranteed|overnight|viral|secret trick/i.test(t)]
+  ];
+  var pass=checks.filter(function(c){return c[1]}).length,score=Math.round(pass/checks.length*100);
+  $("#result").innerHTML='<h3>Checklist score</h3><div class="score">'+score+'<small style="font-size:16px">/100</small></div><div class="bar" style="margin:10px 0"><i style="width:'+score+'%"></i></div><p class="legend">'+words+' words</p><ul class="list">'+checks.map(function(c){return "<li><span>"+esc(c[0])+"</span><span class='tag'>"+(c[1]?"Pass":"Improve")+"</span></li>"}).join("")+"</ul>";
+}
+$("#analyze").onclick=analyze;
+$("#clearDraft").onclick=function(){$("#draft").value="";$("#result").innerHTML="";$("#draft").focus()};
+analyze();
+
+/* Planner */
+var days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+var plan={Mon:["Answer: how often should I post?"],Tue:[],Wed:["3-step Sunday planning routine"],Thu:[],Fri:["Behind the scenes: my weekly review"],Sat:[],Sun:["Weekly review (30 min)"]};
+days.forEach(function(d){var o=document.createElement("option");o.value=d;o.textContent=d;$("#planDay").appendChild(o)});
+function renderPlan(){
+  var n=0;
+  $("#week").innerHTML=days.map(function(d){
+    n+=plan[d].length;
+    return '<div class="day"><h3>'+d+'</h3>'+plan[d].map(function(t,i){return '<div class="slot">'+esc(t)+'<br><button type="button" data-d="'+d+'" data-i="'+i+'">Remove</button></div>'}).join("")+'</div>';
+  }).join("");
+  $("#kpiPlan").textContent=n;
+}
+$("#week").addEventListener("click",function(e){var b=e.target.closest("button[data-d]");if(b){plan[b.dataset.d].splice(+b.dataset.i,1);renderPlan();toast("Removed")}});
+$("#planForm").addEventListener("submit",function(e){e.preventDefault();var t=$("#planTitle").value.trim();if(!t)return;plan[$("#planDay").value].push(t);$("#planTitle").value="";renderPlan();toast("Added to plan")});
+renderPlan();
+
+/* Ideas */
+var pillars={
+  Habits:["Share your 10-minute daily routine","Answer: what if I miss a week?","Show how you batch content on Sundays"],
+  Topics:["Turn one audience question into a post","Compare two approaches to the same problem","Explain a common mistake and its fix"],
+  Measurement:["What I check in my weekly review","Planned vs published: an honest look","One lesson from a post that did not work"]
+};
+var cur="All";
+function renderIdeas(){
+  var names=["All"].concat(Object.keys(pillars));
+  $("#ideaChips").innerHTML=names.map(function(n){return '<button type="button" class="chip'+(n===cur?" on":"")+'" data-p="'+n+'">'+n+'</button>'}).join("");
+  var html="";
+  Object.keys(pillars).forEach(function(p){if(cur==="All"||cur===p)pillars[p].forEach(function(t){html+='<div class="card"><span class="tag">'+p+'</span><h3 style="margin-top:8px">'+esc(t)+'</h3><button type="button" class="btn alt" data-add="'+esc(t)+'">Add to planner</button></div>'})});
+  $("#ideaGrid").innerHTML=html;
+}
+$("#ideaChips").addEventListener("click",function(e){var b=e.target.closest("[data-p]");if(b){cur=b.dataset.p;renderIdeas()}});
+$("#ideaGrid").addEventListener("click",function(e){
+  var b=e.target.closest("[data-add]");if(!b)return;
+  var best=days[0];days.forEach(function(d){if(plan[d].length<plan[best].length)best=d});
+  plan[best].push(b.dataset.add);renderPlan();toast("Added to "+best);
+});
+renderIdeas();
+
+/* Audience */
+function bars(el,rows){el.innerHTML=rows.map(function(r){return '<div style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><span>'+r[0]+'</span><b>'+r[1]+'%</b></div><div class="bar"><i style="width:'+r[1]+'%"></i></div></div>'}).join("")}
+bars($("#segs"),[["Solo creators",45],["Small business owners",35],["Students",20]]);
+bars($("#formats"),[["Short written posts",50],["Checklists",30],["Longer guides",20]]);
+
+/* Reports */
+var reps=[
+  ["October (sample)","You published 12 posts and finished 6 of 8 weekly reviews. Posts that answered one clear question scored highest on the checklist. Next month: keep the Sunday review habit."],
+  ["September (sample)","Consistency improved after you fixed a weekly planning slot. Openings were the weakest area. Focus on shorter first sentences."],
+  ["August (sample)","A quieter month with 8 posts. Planning was irregular, so the main lesson was to plan one week ahead."]
+];
+$("#reportList").innerHTML=reps.map(function(r){return "<details><summary>"+r[0]+"</summary><p style='margin-top:8px'>"+r[1]+"</p></details>"}).join("");
+
+show();
+})();
+</script>
+</body>
+</html>

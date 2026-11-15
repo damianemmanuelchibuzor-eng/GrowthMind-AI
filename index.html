@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrowthMind AI – Grow with strategy. Not shortcuts.</title>
+<meta name="description" content="GrowthMind AI helps creators and small teams plan, analyze and improve their content with a steady, strategy-first approach.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g900:#0b2e22;--g800:#10412f;--g700:#175a42;--g500:#2e8b63;--g200:#cfe6da;--g100:#e8f3ec;--g50:#f4faf6;
+  --ink:#12231c;--muted:#5a6e64;--line:#dbe7e0;--white:#fff;--warn:#b7791f;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--ink);background:var(--g50);line-height:1.55;font-size:15px}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--g500);outline-offset:2px}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--g900);color:#dcefe5;padding:24px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:21px;font-weight:700;color:#fff;text-decoration:none}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--g500);display:grid;place-items:center}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;text-decoration:none;font-weight:600;color:#bcd9ca}
+.nav a:hover{background:var(--g800);color:#fff}
+.nav a.on{background:var(--white);color:var(--g900)}
+.nav svg{width:18px;height:18px;flex:none}
+.side p{font-size:13px;color:#9cc2ae;margin-top:auto}
+.main{padding:28px clamp(16px,3vw,40px) 60px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-family:var(--serif);font-size:clamp(26px,4vw,38px);line-height:1.15;color:var(--g900)}
+h2{font-family:var(--serif);font-size:24px;color:var(--g900);margin-bottom:4px}
+h3{font-size:16px;color:var(--g900);margin-bottom:6px}
+.sub{color:var(--muted);max-width:62ch}
+.note{background:var(--g100);border:1px solid var(--g200);color:var(--g800);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:20px}
+.btn{background:var(--g700);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--g800)}
+.btn.alt{background:var(--white);color:var(--g800);border:1px solid var(--g200)}
+.btn.alt:hover{background:var(--g100)}
+.view{display:none}
+.view.on{display:block}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px}
+.hero{background:var(--g900);color:#fff;border-radius:18px;padding:clamp(20px,4vw,36px);margin-bottom:16px;display:grid;grid-template-columns:1.3fr 1fr;gap:24px;align-items:center}
+.hero h2{color:#fff;font-size:clamp(24px,3.4vw,34px)}
+.hero p{color:#c5e0d2;margin:8px 0 16px;max-width:52ch}
+.hero .box{background:var(--g800);border-radius:12px;padding:16px}
+.hero .box b{color:#fff}
+.kpi small{color:var(--muted);display:block}
+.kpi strong{font-family:var(--serif);font-size:30px;color:var(--g900)}
+.kpi span{font-size:12px;color:var(--muted)}
+.tag{display:inline-block;font-size:12px;font-weight:700;background:var(--g100);color:var(--g700);padding:2px 10px;border-radius:99px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:1px solid var(--g200);background:var(--white);padding:6px 14px;border-radius:99px;cursor:pointer;font-weight:600;font-size:14px}
+.chip.on{background:var(--g700);color:#fff;border-color:var(--g700)}
+textarea,input[type=text],select{width:100%;border:1px solid var(--g200);border-radius:8px;padding:10px 12px;background:#fff}
+textarea{min-height:140px;resize:vertical}
+label{font-weight:600;font-size:13px;display:block;margin:10px 0 4px}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow:auto;margin:12px 0;padding:4px}
+.msg{padding:10px 14px;border-radius:12px;max-width:88%;white-space:pre-line}
+.msg.ai{background:var(--g100);align-self:flex-start}
+.msg.me{background:var(--g700);color:#fff;align-self:flex-end}
+.row{display:flex;gap:8px}
+.score{font-family:var(--serif);font-size:48px;color:var(--g700);line-height:1}
+.bar{height:10px;border-radius:99px;background:var(--g100);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--g500);border-radius:99px}
+.list{list-style:none;padding:0;display:grid;gap:8px}
+.list li{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:10px;overflow-x:auto;padding-bottom:8px}
+.day{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:150px}
+.day h3{font-size:13px;margin-bottom:8px}
+.slot{background:var(--g100);border-radius:8px;padding:8px;font-size:13px;margin-bottom:6px}
+.slot button{background:none;border:0;color:var(--g700);cursor:pointer;font-size:12px;font-weight:700;padding:0;margin-top:4px}
+svg text{font-family:var(--sans);font-size:11px;fill:var(--muted)}
+.legend{font-size:12px;color:var(--muted);margin-top:6px}
+details{border-top:1px solid var(--line);padding:10px 0}
+summary{cursor:pointer;font-weight:700;color:var(--g800)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--g900);color:#fff;padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.on{opacity:1}
+.mtop{display:none}
+@media (max-width:1000px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}.hero{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .mtop{display:block;position:sticky;top:0;z-index:10;background:var(--g900);padding:10px 12px 0}
+  .mtop .brand{font-size:19px;margin-bottom:8px}
+  .mtop nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+  .mtop nav::-webkit-scrollbar{display:none}
+  .mtop a{white-space:nowrap;text-decoration:none;color:#bcd9ca;font-weight:600;padding:7px 12px;border-radius:99px;font-size:14px}
+  .mtop a.on{background:#fff;color:var(--g900)}
+}
+@media (max-width:620px){.g4,.g3,.g2{grid-template-columns:1fr}.main{padding-top:20px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.toast{transition:none}}
+@media print{.side,.mtop,.btn,.nav{display:none!important}.view{display:block!important}.app{display:block}}
+</style>
+</head>
+<body>
+<div class="mtop">
+  <a class="brand" href="#dashboard"><span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c0-8 5-13 16-14-1 11-6 16-14 15"/><path d="M4 20c3-5 6-8 10-10"/></svg></span>GrowthMind AI</a>
+  <nav id="mnav" aria-label="Sections"></nav>
+</div>
+<div class="app">
+  <aside class="side">
+    <a class="brand" href="#dashboard"><span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c0-8 5-13 16-14-1 11-6 16-14 15"/><path d="M4 20c3-5 6-8 10-10"/></svg></span>GrowthMind AI</a>
+    <nav class="nav" id="snav" aria-label="Main navigation"></nav>
+    <p>Grow with strategy. Not shortcuts.</p>
+  </aside>
+  <main class="main" id="top">
+    <div class="note" role="note"><b>Illustrative data.</b> Every number, name and chart on this page is sample data for design purposes. It is not from a real account, and no result is promised or implied.</div>
+
+    <!-- DASHBOARD -->
+    <section class="view" id="dashboard" aria-labelledby="h-dashboard">
+      <div class="hero">
+        <div>
+          <h1 id="h-dashboard">Grow with strategy. Not shortcuts.</h1>
+          <p>GrowthMind AI helps you decide what to make, check it before you publish, and review what actually worked. Steady habits beat quick tricks.</p>
+          <a class="btn alt" href="#coach">Ask the Growth Coach</a>
+          <a class="btn" href="#planner" style="margin-left:6px">Open planner</a>
+        </div>
+        <div class="box">
+          <b>This week’s focus (sample)</b>
+          <p style="margin:6px 0 0">Publish three posts that each answer one question your audience asked. Review them on Sunday.</p>
+        </div>
+      </div>
+      <div class="grid g4">
+        <div class="card kpi"><small>Posts published (last 30 days)</small><strong>12</strong><span>Sample figure</span></div>
+        <div class="card kpi"><small>Planning consistency</small><strong>83%</strong><span>Weeks with a full plan, sample</span></div>
+        <div class="card kpi"><small>Average content score</small><strong>74/100</strong><span>Sample, from the Analyzer</span></div>
+        <div class="card kpi"><small>Items planned next 7 days</small><strong id="kpiPlan">4</strong><span>Updates live from your planner</span></div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card"><h3>Consistency trend (sample)</h3><div id="chartDash"></div><p class="legend">Posts published per week, illustrative.</p></div>
+        <div class="card">
+          <h3>Suggested next steps</h3>
+          <ul class="list">
+            <li><span>Rewrite the opening line of your weakest post</span><a class="tag" href="#analyzer">Analyzer</a></li>
+            <li><span>Pick two ideas for next week</span><a class="tag" href="#ideas">Ideas</a></li>
+            <li><span>Schedule a 30-minute Sunday review</span><a class="tag" href="#planner">Planner</a></li>
+            <li><span>Read last month’s report</span><a class="tag" href="#reports">Reports</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- COACH -->
+    <section class="view" id="coach" aria-labelledby="h-coach">
+      <h1 id="h-coach">AI Growth Coach</h1>
+      <p class="sub">Choose a topic or type a question. This demo uses built-in sample guidance, not a live AI model.</p>
+      <div class="card" style="margin-top:16px">
+        <div class="chips" id="coachChips"></div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <form class="row" id="coachForm">
+          <input type="text" id="coachIn" placeholder="Ask about consistency, topics, hooks, reviews…" aria-label="Your question">
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ANALYZER -->
+    <section class="view" id="analyzer" aria-labelledby="h-analyzer">
+      <h1 id="h-analyzer">Content Analyzer</h1>
+      <p class="sub">Paste a draft to check structure and clarity before publishing. The score is a simple checklist, not a prediction of performance.</p>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card">
+          <label for="draft">Your draft</label>
+          <textarea id="draft">Struggling to plan your week? Here are 3 steps I use every Sunday. First, list the questions your audience asked. Second, pick one question per post. Third, schedule time to write. Which step would you try first?</textarea>
+          <div class="row" style="margin-top:10px"><button class="btn" id="analyze">Analyze draft</button><button class="btn alt" id="clearDraft">Clear</button></div>
+        </div>
+        <div class="card" id="result" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- IDEAS -->
+    <section class="view" id="ideas" aria-labelledby="h-ideas">
+      <h1 id="h-ideas">Content Ideas</h1>
+      <p class="sub">Sample ideas grouped by content pillar. Add any idea to your planner.</p>
+      <div class="chips" id="ideaChips"></div>
+      <div class="grid g3" id="ideaGrid"></div>
+    </section>
+
+    <!-- PLANNER -->
+    <section class="view" id="planner" aria-labelledby="h-planner">
+      <h1 id="h-planner">Content Planner</h1>
+      <p class="sub">Plan one week at a time. Items live in this page only and reset when you reload.</p>
+      <form class="card row" id="planForm" style="margin:16px 0;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1 1 220px"><label for="planTitle">Content title</label><input type="text" id="planTitle" required placeholder="e.g. Answer: how often should I post?"></div>
+        <div style="flex:0 1 150px"><label for="planDay">Day</label><select id="planDay"></select></div>
+        <button class="btn" type="submit">Add to plan</button>
+      </form>
+      <div class="week" id="week"></div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section class="view" id="analytics" aria-labelledby="h-analytics">
+      <h1 id="h-analytics">Analytics</h1>
+      <p class="sub">Look for steady patterns across weeks, not single spikes. All figures are illustrative.</p>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card"><h3>Posts published per week</h3><div id="chartPosts"></div><p class="legend">Sample, last 8 weeks.</p></div>
+        <div class="card"><h3>Average content score per week</h3><div id="chartScore"></div><p class="legend">Sample, from checklist scores.</p></div>
+      </div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card kpi"><small>Planned vs. published</small><strong>9 of 11</strong><span>Sample, last 4 weeks</span></div>
+        <div class="card kpi"><small>Drafts reviewed before publishing</small><strong>78%</strong><span>Sample</span></div>
+        <div class="card kpi"><small>Weekly reviews completed</small><strong>6 of 8</strong><span>Sample</span></div>
+      </div>
+    </section>
+
+    <!-- AUDIENCE -->
+    <section class="view" id="audience" aria-labelledby="h-audience">
+      <h1 id="h-audience">Audience Insights</h1>
+      <p class="sub">Understand who you are writing for. Sample segments and questions for a fictional small-business education brand.</p>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card"><h3>Audience segments (sample)</h3><div id="segs"></div></div>
+        <div class="card"><h3>Top questions asked (sample)</h3>
+          <ul class="list">
+            <li><span>How do I stay consistent with limited time?</span><span class="tag">Habits</span></li>
+            <li><span>What should I write about each week?</span><span class="tag">Topics</span></li>
+            <li><span>How do I know what is working?</span><span class="tag">Measurement</span></li>
+            <li><span>Is it worth reusing older posts?</span><span class="tag">Efficiency</span></li>
+          </ul>
+          <h3 style="margin-top:16px">Preferred formats (sample)</h3><div id="formats"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="view" id="reports" aria-labelledby="h-reports">
+      <h1 id="h-reports">Growth Reports</h1>
+      <p class="sub">Monthly summaries that focus on habits, quality and lessons. Open a report to read the sample summary.</p>
+      <div class="card" style="margin-top:16px" id="reportList"></div>
+      <div class="row" style="margin-top:14px"><button class="btn alt" onclick="window.print()">Print this page</button></div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  var $=function(s,c){return (c||document).querySelector(s)};
+  var ico={
+    dashboard:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3v6h8V3zM3 21h8v-6H3z"/>',
+    coach:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+    analyzer:'<path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/>',
+    ideas:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/>',
+    planner:'<path d="M4 5h16v15H4zM4 10h16M9 3v4M15 3v4"/>',
+    analytics:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    audience:'<path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM21 20v-2a4 4 0 0 0-3-3.9M16 3.1a3.5 3.5 0 0 1 0 6.8"/>',
+    reports:'<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7"/>'
+  };
+  var labels={dashboard:"Dashboard",coach:"AI Growth Coach",analyzer:"Content Analyzer",ideas:"Content Ideas",planner:"Content Planner",analytics:"Analytics",audience:"Audience Insights",reports:"Growth Reports"};
+  var ids=Object.keys(labels);
+  var snav=$("#snav"),mnav=$("#mnav");
+  ids.forEach(function(id){
+    snav.insertAdjacentHTML("beforeend",'<a href="#'+id+'" data-id="'+id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ico[id]+'</svg>'+labels[id]+'</a>');
+    mnav.insertAdjacentHTML("beforeend",'<a href="#'+id+'" data-id="'+id+'">'+labels[id].replace("AI Growth Coach","Growth Coach")+'</a>');
+  });
+  function show(){
+    var id=location.hash.slice(1);
+    if(ids.indexOf(id)<0)id="dashboard";
+    document.querySelectorAll(".view").forEach(function(v){v.classList.toggle("on",v.id===id)});
+    document.querySelectorAll("[data-id]").forEach(function(a){
+      var on=a.dataset.id===id;a.classList.toggle("on",on);
+      if(on)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
+    });
+    document.title=labels[id]+" – GrowthMind AI";
+    window.scrollTo(0,0);
+    var on=document.querySelector('#mnav a.on');if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"center"});
+  }
+  window.addEventListener("hashchange",show);
+
+  function toast(t){var e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},1800)}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+  /* Charts (inline SVG) */
+  function barChart(el,data,labs,max){
+    var w=420,h=180,p=26,bw=(w-p*2)/data.length;
+    var s='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="Bar chart of sample data">';
+    for(var g=0;g<=3;g++){var y=p+(h-p*2)*g/3;s+='<line x1="'+p+'" x2="'+(w-p)+'" y1="'+y+'" y2="'+y+'" stroke="#dbe7e0"/>';}
+    data.forEach(function(v,i){
+      var bh=(h-p*2)*v/max,x=p+i*bw+bw*0.2;
+      s+='<rect x="'+x+'" y="'+(h-p-bh)+'" width="'+bw*0.6+'" height="'+bh+'" rx="4" fill="#2e8b63"/>';
+      s+='<text x="'+(x+bw*0.3)+'" y="'+(h-8)+'" text-anchor="middle">'+labs[i]+'</text>';
+      s+='<text x="'+(x+bw*0.3)+'" y="'+(h-p-bh-5)+'" text-anchor="middle">'+v+'</text>';
+    });
+    el.innerHTML=s+'</svg>';
+  }
+  function lineChart(el,data,labs,min,max){
+    var w=420,h=180,p=26,st=(w-p*2)/(data.length-1),pts=[];
+    var s='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="Line chart of sample data">';
+    for(var g=0;g<=3;g++){var y=p+(h-p*2)*g/3;s+='<line x1="'+p+'" x2="'+(w-p)+'" y1="'+y+'" y2="'+y+'" stroke="#dbe7e0"/>';}
+    data.forEach(function(v,i){pts.push([p+i*st,h-p-(h-p*2)*(v-min)/(max-min)])});
+    s+='<polyline fill="none" stroke="#175a42" stroke-width="3" stroke-linejoin="round" points="'+pts.map(function(q){return q.join(",")}).join(" ")+'"/>';
+    pts.forEach(function(q,i){
+      s+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="4" fill="#fff" stroke="#175a42" stroke-width="2"/>';
+      s+='<text x="'+q[0]+'" y="'+(h-8)+'" text-anchor="middle">'+labs[i]+'</text>';
+    });
+    el.innerHTML=s+'</svg>';
+  }
+  var wk=["W1","W2","W3","W4","W5","W6","W7","W8"];
+  barChart($("#chartDash"),[2,3,2,3,3,4,3,3],wk,5);
+  barChart($("#chartPo

@@ -4,6 +4,6 @@
   "description": "GrowthMind AI: honest YouTube channel analysis and monetization readiness checks.",
   "private": true,
   "engines": {
-    "node": "20.x"
+    "node": "26.x"
   }
 }

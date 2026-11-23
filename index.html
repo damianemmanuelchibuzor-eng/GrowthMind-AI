@@ -41,6 +41,13 @@ h2{font-size:18px;color:var(--g900);margin-bottom:10px}
 .unknown,.owner_only{background:#fdf0d5;color:var(--warn)}
 ul{padding-left:20px}
 li{margin:7px 0}
+.scoreRow{display:flex;gap:16px;align-items:center;margin-bottom:12px}
+.big{font-size:52px;font-weight:800;color:var(--g700);line-height:1}
+.big small{font-size:18px;color:var(--muted);font-weight:600}
+.f{margin:12px 0}
+.f .top{display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.bar{height:9px;border-radius:99px;background:var(--g100);overflow:hidden;margin:5px 0}
+.bar i{display:block;height:100%;background:var(--g500);border-radius:99px}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--g200);border-top-color:var(--g500);border-radius:50%;animation:s .8s linear infinite;vertical-align:-2px;margin-right:8px}
 @keyframes s{to{transform:rotate(360deg)}}
 footer{max-width:880px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:13px;text-align:center}
@@ -94,10 +101,39 @@ $("#f").addEventListener("submit", async e => {
   $("#go").disabled = false;
 });
 
+function scoreIt(m) {
+  const f = [];
+  f.push({ name: "Upload consistency", max: 30, got: Math.round(Math.min(m.uploads90 / 12, 1) * 30), why: m.uploads90 + " uploads in 90 days. About 12 or more earns full marks." });
+  const fr = m.daysSinceLastUpload;
+  f.push({ name: "Freshness", max: 15, got: fr == null ? 0 : fr <= 7 ? 15 : fr <= 14 ? 11 : fr <= 30 ? 6 : 0, why: fr == null ? "No uploads found." : "Last upload " + fr + " days ago." });
+  if (m.subs) {
+    const r = m.medianViews / m.subs * 100;
+    f.push({ name: "Reach vs. audience", max: 25, got: r >= 10 ? 25 : r >= 5 ? 20 : r >= 2 ? 14 : r >= 0.5 ? 8 : 3, why: "The typical video reaches " + r.toFixed(1) + "% of the subscriber count." });
+  } else {
+    f.push({ name: "Reach vs. audience", max: 25, got: null, why: "Subscriber count is hidden, so this factor is skipped." });
+  }
+  const e = m.engagementPct;
+  f.push({ name: "Audience response", max: 20, got: e >= 3 ? 20 : e >= 1.5 ? 16 : e >= 0.8 ? 11 : e >= 0.3 ? 6 : 2, why: "Likes plus comments are " + e + "% of views." });
+  const s = m.subs;
+  f.push({ name: "Subscriber milestone", max: 10, got: s == null ? null : s >= 1000 ? 10 : s >= 500 ? 7 : Math.round(s / 500 * 7), why: s == null ? "Hidden, so this factor is skipped." : s >= 1000 ? "Above the 1,000 ad-revenue threshold." : s >= 500 ? "Above 500 (fan funding), below 1,000." : "Below 500 subscribers." });
+  const known = f.filter(x => x.got != null);
+  const earned = known.reduce((a, x) => a + x.got, 0), max = known.reduce((a, x) => a + x.max, 0);
+  return { total: max ? Math.round(earned / max * 100) : 0, f, known: known.length };
+}
+
 function render(d) {
   const m = d.metrics;
   let h = '<div class="card"><div class="head">' + (d.channel.thumb ? '<img src="' + esc(d.channel.thumb) + '" alt="">' : "") +
     '<div><h2 style="margin:0">' + esc(d.channel.title) + '</h2><span class="muted">' + esc(d.channel.handle) + " · public data as of " + esc(d.asOf) + "</span></div></div></div>";
+
+  const sc = scoreIt(m);
+  const lbl = sc.total >= 80 ? "Strong public signals" : sc.total >= 60 ? "Solid, with room to improve" : sc.total >= 40 ? "Needs attention" : "Early stage";
+  h += '<div class="card"><h2>Growth readiness score</h2><div class="scoreRow"><div class="big">' + sc.total + '<small>/100</small></div><div><b>' + lbl + '</b><br><span class="muted">Based on ' + sc.known + ' of 5 public factors</span></div></div>' +
+    sc.f.map(x => {
+      const pct = x.got == null ? 0 : Math.round(x.got / x.max * 100);
+      return '<div class="f"><div class="top"><span>' + esc(x.name) + '</span><span>' + (x.got == null ? "Skipped" : x.got + " / " + x.max) + '</span></div><div class="bar"><i style="width:' + pct + '%"></i></div><span class="muted">' + esc(x.why) + "</span></div>";
+    }).join("") +
+    '<p class="muted" style="margin-top:12px">This score reflects public signals only. It is not a prediction of monetization approval or future views. Watch hours, qualified Shorts views and strikes are private and are not included.</p></div>';
 
   const snap = [["Subscribers", n(m.subs)], ["Total views", n(m.totalViews)], ["Videos", n(m.videoCount)], ["Uploads, last 90 days", m.uploads90],
     ["Days since last upload", m.daysSinceLastUpload == null ? "–" : m.daysSinceLastUpload], ["Median views", n(m.medianViews)],

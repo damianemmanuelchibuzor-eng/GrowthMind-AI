@@ -163,5 +163,50 @@ function render(d) {
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>  
+  <script>
+(function () {
+  var orig = render;
+  function field(id, label, val) {
+    return '<div><div class="muted">' + label + '</div><input id="' + id + '" type="number" inputmode="numeric" min="0" value="' + val + '" style="border:1px solid #cfe6da;width:100%"></div>';
+  }
+  function row(label, have, need, gained90) {
+    var pct = Math.min(100, Math.round(have / need * 100));
+    var note;
+    if (have >= need) note = "Reached.";
+    else if (!(gained90 > 0)) note = "Add your 90-day gain to estimate the time left.";
+    else note = "About " + Math.ceil((need - have) / (gained90 / 13)) + " weeks at your current pace.";
+    return '<div class="f"><div class="top"><span>' + label + '</span><span>' + have.toLocaleString("en-US") + ' / ' + need.toLocaleString("en-US") + '</span></div><div class="bar"><i style="width:' + pct + '%"></i></div><div class="muted">' + note + '</div></div>';
+  }
+  render = function (d) {
+    orig(d);
+    try {
+      var out = document.getElementById("out");
+      var s = d.metrics && d.metrics.subs;
+      var box = document.createElement("div");
+      box.className = "card";
+      box.innerHTML = '<h2>Monetization countdown</h2><p class="muted">Enter your private numbers from YouTube Studio (Analytics). Nothing is saved or sent anywhere.</p><div class="grid">' +
+        field("cd_subs", "Subscribers now", s == null ? "" : s) +
+        field("cd_sg", "Subscribers gained, last 90 days", "") +
+        field("cd_wh", "Watch hours, last 12 months", "") +
+        field("cd_wg", "Watch hours gained, last 90 days", "") +
+        '</div><button type="button" id="cd_go" style="margin-top:12px">Calculate</button><div id="cd_out" style="margin-top:12px"></div>';
+      out.appendChild(box);
+      document.getElementById("cd_go").onclick = function () {
+        var v = function (id) { return Math.max(0, Number(document.getElementById(id).value) || 0); };
+        var subs = v("cd_subs"), sg = v("cd_sg"), wh = v("cd_wh"), wg = v("cd_wg");
+        var weeksToBar = Math.ceil((Date.UTC(2027, 1, 1) - Date.now()) / 6048e5);
+        var html = row("Subscribers for fan funding", subs, 500, sg) +
+          row("Subscribers for ad revenue", subs, 1000, sg) +
+          row("Watch hours for fan funding", wh, 3000, wg) +
+          row("Watch hours for ads (current bar)", wh, 4000, wg) +
+          row("Watch hours for ads (from 1 Feb 2027)", wh, 8000, wg);
+        if (weeksToBar > 0) html += '<p class="muted">The higher watch-hour bar starts in about ' + weeksToBar + ' weeks.</p>';
+        html += '<p class="muted">These are estimates, not promises. Confirm the current rules in YouTube Studio before you apply.</p>';
+        document.getElementById("cd_out").innerHTML = html;
+      };
+    } catch (e) {}
+  };
+})();
+</script>
 </body>
 </html>

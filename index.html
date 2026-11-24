@@ -106,9 +106,13 @@ function scoreIt(m) {
   f.push({ name: "Upload consistency", max: 30, got: Math.round(Math.min(m.uploads90 / 12, 1) * 30), why: m.uploads90 + " uploads in 90 days. About 12 or more earns full marks." });
   const fr = m.daysSinceLastUpload;
   f.push({ name: "Freshness", max: 15, got: fr == null ? 0 : fr <= 7 ? 15 : fr <= 14 ? 11 : fr <= 30 ? 6 : 0, why: fr == null ? "No uploads found." : "Last upload " + fr + " days ago." });
+    const tiny = m.medianViews < 100;
   if (m.subs) {
     const r = m.medianViews / m.subs * 100;
-    f.push({ name: "Reach vs. audience", max: 25, got: r >= 10 ? 25 : r >= 5 ? 20 : r >= 2 ? 14 : r >= 0.5 ? 8 : 3, why: "The typical video reaches " + r.toFixed(1) + "% of the subscriber count." });
+    let g = r >= 10 ? 25 : r >= 5 ? 20 : r >= 2 ? 14 : r >= 0.5 ? 8 : 3;
+    if (tiny) g = Math.min(g, 12);
+    f.push({ name: "Reach vs. audience", max: 25, got: g, why: "The typical video reaches " + r.toFixed(1) + "% of the subscriber count." + (tiny ? " Capped: under 100 views is too few to judge reliably." : "") });
+  } else {
   } else {
     f.push({ name: "Reach vs. audience", max: 25, got: null, why: "Subscriber count is hidden, so this factor is skipped." });
   }

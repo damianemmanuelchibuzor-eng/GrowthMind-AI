@@ -441,5 +441,33 @@ function render(d) {
   };
 })();
 </script>
+  <script>
+(function () {
+  var orig = render;
+  render = function (d) {
+    orig(d);
+    try {
+      var out = document.getElementById("out");
+      var box = document.createElement("div");
+      box.className = "card";
+      box.innerHTML =
+        "<h2>How the score works</h2>" +
+        "<p class=\"muted\">The score is a checklist of five public signals, out of 100. It shows habits and audience response. It is not a prediction.</p>" +
+        "<ul>" +
+        "<li><b>Upload consistency (30):</b> full marks at about 12 or more uploads in 90 days.</li>" +
+        "<li><b>Freshness (15):</b> how recent your last upload is. Within 7 days is best.</li>" +
+        "<li><b>Reach vs. audience (25):</b> how many views a typical video gets compared with your subscriber count.</li>" +
+        "<li><b>Audience response (20):</b> likes plus comments as a share of views.</li>" +
+        "<li><b>Subscriber milestone (10):</b> progress toward 500 and 1,000 subscribers.</li>" +
+        "</ul>" +
+        "<p class=\"muted\"><b>Small channels:</b> if a typical video has under 100 views, Reach and Audience response are capped, because small numbers swing too much to judge fairly.</p>" +
+        "<p class=\"muted\"><b>Hidden data:</b> if a factor is hidden, such as a private subscriber count, it is skipped and the score is worked out from the rest.</p>" +
+        "<p class=\"muted\"><b>Not included:</b> watch hours, qualified Shorts views, strikes and policy status. Only the channel owner can see these in YouTube Studio. Use the Monetization countdown for them.</p>" +
+        "<p class=\"muted\">No tool can promise views or monetization approval. Confirm current requirements in YouTube Studio before you apply.</p>";
+      out.appendChild(box);
+    } catch (e) {}
+  };
+})();
+</script>
 </body>
 </html>

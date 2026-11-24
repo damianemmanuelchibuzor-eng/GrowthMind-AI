@@ -127,7 +127,7 @@ function scoreIt(m) {
   return { total: max ? Math.round(earned / max * 100) : 0, f, known: known.length };
 }
 
-function render(d) {
+  const lbl = (m.subs != null && m.subs < 500 && sc.total >= 60) ? "Good habits, audience still small" : sc.total >= 80 ? "Strong public signals" : sc.total >= 60 ? "Solid, with room to improve" : sc.total >= 40 ? "Needs attention" : "Early stage";
   const m = d.metrics;
   let h = '<div class="card"><div class="head">' + (d.channel.thumb ? '<img src="' + esc(d.channel.thumb) + '" alt="">' : "") +
     '<div><h2 style="margin:0">' + esc(d.channel.title) + '</h2><span class="muted">' + esc(d.channel.handle) + " · public data as of " + esc(d.asOf) + "</span></div></div></div>";

@@ -208,5 +208,55 @@ function render(d) {
   };
 })();
 </script>
+  <script>
+(function () {
+  var orig = render;
+  function plan(m) {
+    var t = [];
+    var fr = m.daysSinceLastUpload;
+    if (fr == null || fr > 14) {
+      t.push(["Upload this week", "Your last upload was " + (fr == null ? "not found" : fr + " days ago") + ". Even one short, useful video restarts your rhythm."]);
+    } else if (fr > 7) {
+      t.push(["Upload in the next few days", "It has been " + fr + " days since your last upload. Staying under a week keeps viewers in the habit."]);
+    }
+    if (m.uploads90 < 12) {
+      t.push(["Build a weekly rhythm", "You posted " + m.uploads90 + " times in 90 days. Pick a day each week and aim for about 12 uploads in the next 90 days, at a pace you can keep."]);
+    }
+    if (m.subs) {
+      var r = m.medianViews / m.subs * 100;
+      if (r < 5) {
+        t.push(["Test titles and openings", "The typical video reaches about " + r.toFixed(1) + "% of your subscribers. For your next 3 videos, write 3 title options each and make the first 10 seconds state the payoff."]);
+      } else if (r < 10) {
+        t.push(["Repeat what already works", "Your typical reach is about " + r.toFixed(1) + "% of subscribers. Find your top 3 videos by views and make a follow-up on the same topic."]);
+      }
+    }
+    if (m.engagementPct < 1.5) {
+      t.push(["Ask one clear question", "Likes plus comments are about " + m.engagementPct + "% of views. End each video with one specific question, and reply to comments in the first hour."]);
+    }
+    if (m.shortsShare > 70) {
+      t.push(["Mix in longer videos", m.shortsShare + "% of your recent videos are Shorts. Watch hours count toward monetization, so try one longer video each week and compare."]);
+    }
+    if (!t.length) {
+      t.push(["Keep your rhythm", "No weak spots showed in the public data. Review your top and bottom videos each week and repeat what works."]);
+    }
+    return t;
+  }
+  render = function (d) {
+    orig(d);
+    try {
+      var out = document.getElementById("out");
+      var tasks = plan(d.metrics);
+      var box = document.createElement("div");
+      box.className = "card";
+      box.innerHTML = "<h2>Your action plan</h2><p class=\"muted\">Based on public data only. Do these in order.</p><ol>" +
+        tasks.map(function (x) {
+          return "<li><b>" + x[0] + "</b><br><span class=\"muted\">" + x[1] + "</span></li>";
+        }).join("") +
+        "</ol><p class=\"muted\">These are suggestions, not guarantees.</p>";
+      out.appendChild(box);
+    } catch (e) {}
+  };
+})();
+</script>
 </body>
 </html>

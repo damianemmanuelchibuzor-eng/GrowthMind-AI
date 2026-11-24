@@ -301,6 +301,45 @@ function render(d) {
     } catch (e) {}
   };
 })();
+  </script>
+  <script>
+(function () {
+  var orig = render;
+  var names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  render = function (d) {
+    orig(d);
+    try {
+      if (!d.videos || d.videos.length < 6) return;
+      var out = document.getElementById("out");
+      var days = names.map(function () { return { n: 0, views: [] }; });
+      d.videos.forEach(function (v) {
+        var k = new Date(v.date).getUTCDay();
+        days[k].n++;
+        days[k].views.push(v.views);
+      });
+      var med = function (a) {
+        var s = a.slice().sort(function (x, y) { return x - y; });
+        var m = s.length >> 1;
+        return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+      };
+      var rows = days.map(function (x, i) {
+        return { name: names[i], n: x.n, m: x.n ? Math.round(med(x.views)) : 0 };
+      }).filter(function (x) { return x.n > 0; });
+      rows.sort(function (a, b) { return b.m - a.m; });
+      var top = rows.filter(function (x) { return x.n >= 2; })[0] || rows[0];
+      var max = rows[0].m || 1;
+      var box = document.createElement("div");
+      box.className = "card";
+      box.innerHTML = "<h2>Best upload day</h2><p class=\"muted\">Median views by weekday, from the latest " + d.videos.length + " videos (UTC dates).</p>" +
+        rows.map(function (x) {
+          return "<div class=\"f\"><div class=\"top\"><span>" + x.name + " (" + x.n + " video" + (x.n > 1 ? "s" : "") + ")</span><span>" + x.m.toLocaleString("en-US") + "</span></div><div class=\"bar\"><i style=\"width:" + Math.round(x.m / max * 100) + "%\"></i></div></div>";
+        }).join("") +
+        "<p>Strongest day in this sample: <b>" + top.name + "</b>.</p>" +
+        "<p class=\"muted\">Small samples can mislead, and topic matters more than the day. Treat this as something to test, not a rule.</p>";
+      out.appendChild(box);
+    } catch (e) {}
+  };
+})();
 </script>
 </body>
 </html>

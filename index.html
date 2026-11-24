@@ -258,5 +258,49 @@ function render(d) {
   };
 })();
 </script>
+  <script>
+(function () {
+  var orig = render;
+  function safe(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function issues(t) {
+    var p = [];
+    var letters = t.replace(/[^A-Za-z]/g, "");
+    if (t.length > 70) p.push("Long (" + t.length + " characters), may be cut off in search and feeds");
+    if (t.length < 15) p.push("Very short, may not say what the video is about");
+    if (letters.length >= 8 && letters.replace(/[^A-Z]/g, "").length / letters.length > 0.6) p.push("Mostly capital letters");
+    if (/[!?]{2,}/.test(t)) p.push("Repeated ! or ?");
+    return p;
+  }
+  render = function (d) {
+    orig(d);
+    try {
+      if (!d.videos || !d.videos.length) return;
+      var out = document.getElementById("out");
+      var flagged = d.videos.map(function (v) {
+        return { title: v.title, views: v.views, p: issues(v.title) };
+      }).filter(function (v) { return v.p.length; });
+      var box = document.createElement("div");
+      box.className = "card";
+      var h = "<h2>Title checker</h2><p class=\"muted\">Checked " + d.videos.length + " recent titles for length, caps and punctuation.</p>";
+      if (!flagged.length) {
+        h += "<p>No obvious title problems. Keep titles clear and specific about what the viewer gets.</p>";
+      } else {
+        h += "<p><b>" + flagged.length + " of " + d.videos.length + "</b> titles could be improved:</p><ul>" +
+          flagged.slice(0, 6).map(function (v) {
+            return "<li><b>" + safe(v.title) + "</b><br><span class=\"muted\">" + v.p.join("; ") + "</span></li>";
+          }).join("") + "</ul>";
+        if (flagged.length > 6) h += "<p class=\"muted\">Showing the first 6.</p>";
+      }
+      h += "<p class=\"muted\">Tip: put the main topic early in the title and say what the viewer will get. These checks are simple rules, not a guarantee of more views.</p>";
+      box.innerHTML = h;
+      out.appendChild(box);
+    } catch (e) {}
+  };
+})();
+</script>
 </body>
 </html>

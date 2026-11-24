@@ -106,20 +106,19 @@ function scoreIt(m) {
   f.push({ name: "Upload consistency", max: 30, got: Math.round(Math.min(m.uploads90 / 12, 1) * 30), why: m.uploads90 + " uploads in 90 days. About 12 or more earns full marks." });
   const fr = m.daysSinceLastUpload;
   f.push({ name: "Freshness", max: 15, got: fr == null ? 0 : fr <= 7 ? 15 : fr <= 14 ? 11 : fr <= 30 ? 6 : 0, why: fr == null ? "No uploads found." : "Last upload " + fr + " days ago." });
-    const tiny = m.medianViews < 100;
+  const tiny = m.medianViews < 100;
   if (m.subs) {
     const r = m.medianViews / m.subs * 100;
     let g = r >= 10 ? 25 : r >= 5 ? 20 : r >= 2 ? 14 : r >= 0.5 ? 8 : 3;
     if (tiny) g = Math.min(g, 12);
     f.push({ name: "Reach vs. audience", max: 25, got: g, why: "The typical video reaches " + r.toFixed(1) + "% of the subscriber count." + (tiny ? " Capped: under 100 views is too few to judge reliably." : "") });
+  } else {
+    f.push({ name: "Reach vs. audience", max: 25, got: null, why: "Subscriber count is hidden, so this factor is skipped." });
+  }
   const e = m.engagementPct;
   let eg = e >= 3 ? 20 : e >= 1.5 ? 16 : e >= 0.8 ? 11 : e >= 0.3 ? 6 : 2;
   if (tiny) eg = Math.min(eg, 10);
   f.push({ name: "Audience response", max: 20, got: eg, why: "Likes plus comments are " + e + "% of views." + (tiny ? " Capped: too few views to judge reliably." : "") });
-    f.push({ name: "Reach vs. audience", max: 25, got: null, why: "Subscriber count is hidden, so this factor is skipped." });
-  }
-  const e = m.engagementPct;
-  f.push({ name: "Audience response", max: 20, got: e >= 3 ? 20 : e >= 1.5 ? 16 : e >= 0.8 ? 11 : e >= 0.3 ? 6 : 2, why: "Likes plus comments are " + e + "% of views." });
   const s = m.subs;
   f.push({ name: "Subscriber milestone", max: 10, got: s == null ? null : s >= 1000 ? 10 : s >= 500 ? 7 : Math.round(s / 500 * 7), why: s == null ? "Hidden, so this factor is skipped." : s >= 1000 ? "Above the 1,000 ad-revenue threshold." : s >= 500 ? "Above 500 (fan funding), below 1,000." : "Below 500 subscribers." });
   const known = f.filter(x => x.got != null);
@@ -127,13 +126,13 @@ function scoreIt(m) {
   return { total: max ? Math.round(earned / max * 100) : 0, f, known: known.length };
 }
 
-  const lbl = (m.subs != null && m.subs < 500 && sc.total >= 60) ? "Good habits, audience still small" : sc.total >= 80 ? "Strong public signals" : sc.total >= 60 ? "Solid, with room to improve" : sc.total >= 40 ? "Needs attention" : "Early stage";
+function render(d) {
   const m = d.metrics;
   let h = '<div class="card"><div class="head">' + (d.channel.thumb ? '<img src="' + esc(d.channel.thumb) + '" alt="">' : "") +
     '<div><h2 style="margin:0">' + esc(d.channel.title) + '</h2><span class="muted">' + esc(d.channel.handle) + " · public data as of " + esc(d.asOf) + "</span></div></div></div>";
 
   const sc = scoreIt(m);
-  const lbl = sc.total >= 80 ? "Strong public signals" : sc.total >= 60 ? "Solid, with room to improve" : sc.total >= 40 ? "Needs attention" : "Early stage";
+  const lbl = (m.subs != null && m.subs < 500 && sc.total >= 60) ? "Good habits, audience still small" : sc.total >= 80 ? "Strong public signals" : sc.total >= 60 ? "Solid, with room to improve" : sc.total >= 40 ? "Needs attention" : "Early stage";
   h += '<div class="card"><h2>Growth readiness score</h2><div class="scoreRow"><div class="big">' + sc.total + '<small>/100</small></div><div><b>' + lbl + '</b><br><span class="muted">Based on ' + sc.known + ' of 5 public factors</span></div></div>' +
     sc.f.map(x => {
       const pct = x.got == null ? 0 : Math.round(x.got / x.max * 100);
@@ -168,8 +167,8 @@ function scoreIt(m) {
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
-<script defer src="/_vercel/insights/script.js"></script>  
-  <script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>
 (function () {
   var orig = render;
   function field(id, label, val) {
@@ -214,7 +213,7 @@ function scoreIt(m) {
   };
 })();
 </script>
-  <script>
+<script>
 (function () {
   var orig = render;
   function plan(m) {
@@ -264,7 +263,7 @@ function scoreIt(m) {
   };
 })();
 </script>
-  <script>
+<script>
 (function () {
   var orig = render;
   function safe(s) {
@@ -307,8 +306,8 @@ function scoreIt(m) {
     } catch (e) {}
   };
 })();
-  </script>
-  <script>
+</script>
+<script>
 (function () {
   var orig = render;
   var names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -346,8 +345,8 @@ function scoreIt(m) {
     } catch (e) {}
   };
 })();
-  </script>
-  <script>
+</script>
+<script>
 (function () {
   var orig = render;
   function draw(d, sc) {

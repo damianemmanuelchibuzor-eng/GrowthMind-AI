@@ -340,6 +340,101 @@ function render(d) {
     } catch (e) {}
   };
 })();
+  </script>
+  <script>
+(function () {
+  var orig = render;
+  function draw(d, sc) {
+    var c = document.createElement("canvas");
+    c.width = 1080; c.height = 1080;
+    var x = c.getContext("2d");
+    x.fillStyle = "#0b2e22"; x.fillRect(0, 0, 1080, 1080);
+    x.fillStyle = "#2e8b63"; x.fillRect(0, 0, 1080, 14);
+    x.fillStyle = "#9fd2b8"; x.font = "bold 44px Arial, sans-serif";
+    x.fillText("GrowthMind AI", 70, 110);
+    var title = String(d.channel.title || "");
+    if (title.length > 26) title = title.slice(0, 25) + "...";
+    x.fillStyle = "#ffffff"; x.font = "bold 56px Arial, sans-serif";
+    x.fillText(title, 70, 210);
+    x.fillStyle = "#9fd2b8"; x.font = "32px Arial, sans-serif";
+    x.fillText("Growth readiness score", 70, 262);
+    var big = String(sc.total);
+    x.fillStyle = "#ffffff"; x.font = "bold 240px Arial, sans-serif";
+    x.fillText(big, 70, 500);
+    var w = x.measureText(big).width;
+    x.fillStyle = "#9fd2b8"; x.font = "bold 60px Arial, sans-serif";
+    x.fillText("/100", 70 + w + 16, 500);
+    var y = 590;
+    sc.f.forEach(function (f) {
+      x.fillStyle = "#dcefe5"; x.font = "30px Arial, sans-serif";
+      x.textAlign = "left"; x.fillText(f.name, 70, y);
+      x.textAlign = "right";
+      x.fillText(f.got == null ? "Skipped" : f.got + " / " + f.max, 1010, y);
+      x.textAlign = "left";
+      x.fillStyle = "#10412f"; x.fillRect(70, y + 14, 940, 16);
+      if (f.got != null) {
+        x.fillStyle = "#2e8b63";
+        x.fillRect(70, y + 14, Math.round(940 * f.got / f.max), 16);
+      }
+      y += 78;
+    });
+    x.fillStyle = "#9fd2b8"; x.font = "26px Arial, sans-serif";
+    x.fillText("Public data only. Not a prediction of monetization or views.", 70, 1010);
+    x.fillStyle = "#ffffff"; x.font = "bold 28px Arial, sans-serif";
+    x.fillText(location.host, 70, 1050);
+    return c;
+  }
+  function saveBlob(b) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(b);
+    a.download = "growthmind-score.png";
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  render = function (d) {
+    orig(d);
+    try {
+      var out = document.getElementById("out");
+      var sc = scoreIt(d.metrics);
+      var cv = draw(d, sc);
+      var box = document.createElement("div");
+      box.className = "card";
+      var h = document.createElement("h2");
+      h.textContent = "Share your score";
+      var p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = "Post your score card. It shows public signals only.";
+      var img = document.createElement("img");
+      img.src = cv.toDataURL("image/png");
+      img.alt = "Score card";
+      img.style.cssText = "width:100%;max-width:420px;border-radius:12px;display:block;margin:10px 0";
+      var b1 = document.createElement("button");
+      b1.type = "button"; b1.textContent = "Share";
+      var b2 = document.createElement("button");
+      b2.type = "button"; b2.textContent = "Save image";
+      b2.style.marginLeft = "8px";
+      var text = d.channel.title + " scored " + sc.total + "/100 on GrowthMind AI (public signals only).";
+      b1.onclick = function () {
+        cv.toBlob(function (b) {
+          if (!b) return;
+          var file = new File([b], "growthmind-score.png", { type: "image/png" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], text: text + " " + location.origin }).catch(function () {});
+          } else if (navigator.share) {
+            navigator.share({ text: text, url: location.origin }).catch(function () {});
+          } else {
+            saveBlob(b);
+          }
+        });
+      };
+      b2.onclick = function () {
+        cv.toBlob(function (b) { if (b) saveBlob(b); });
+      };
+      box.appendChild(h); box.appendChild(p); box.appendChild(img);
+      box.appendChild(b1); box.appendChild(b2);
+      out.appendChild(box);
+    } catch (e) {}
+  };
+})();
 </script>
 </body>
 </html>

@@ -126,7 +126,7 @@ module.exports = async (req, res) => {
     const ai = await aiCoach({ channel: sn.title, metrics: m, rulesNow: R, topVideos: list.slice(0, 15).map((v) => ({ title: v.title, views: v.views, seconds: v.dur })) });
     res.status(200).json({
       channel: { title: sn.title, handle: sn.customUrl || "", thumb: sn.thumbnails && (sn.thumbnails.default || {}).url, url: "https://www.youtube.com/channel/" + ch.id },
-      metrics: m, checks, observations: obs, ai, asOf: new Date().toISOString().slice(0, 10)
+      metrics: m, checks, observations: obs, ai, asOf: new Date().toISOString().slice(0, 10), videos: list.map((v) => ({ title: v.title, views: v.views, dur: v.dur, date: v.date }))
     });
   } catch (e) {
     res.status(500).json({ error: e.message || "Something went wrong." });
